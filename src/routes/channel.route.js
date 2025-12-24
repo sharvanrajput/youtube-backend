@@ -5,10 +5,10 @@ import { CreateChannel } from "../controllers/channel.controller.js"
 
 const channelRouter = Router()
 
-channelRouter.post("/createchannel", userAuth, upload.fields[
+channelRouter.post("/createchannel", userAuth, upload.fields([
   { name: "avatar", maxCount: 1 },
   { name: "banner", maxCount: 1 }
-], CreateChannel)
+]), CreateChannel)
 
 
 export default channelRouter
