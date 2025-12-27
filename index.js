@@ -1,8 +1,9 @@
-import express from "express"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import dotenv from "dotenv"
+import express from "express"
 import { connectDb } from "./src/config/db.js"
+import channelRouter from "./src/routes/channel.route.js"
 import userRouter from "./src/routes/user.route.js"
 dotenv.config()
 const app = express()
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }))
 
 
 app.use("/api/v1/user", userRouter)
+app.use("/api/v1/channel", channelRouter)
 
 
 connectDb().then(() => {
