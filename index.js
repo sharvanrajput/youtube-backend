@@ -5,14 +5,15 @@ import express from "express"
 import { connectDb } from "./src/config/db.js"
 import channelRouter from "./src/routes/channel.route.js"
 import userRouter from "./src/routes/user.route.js"
+import contentRoute from "./src/routes/content.route.js"
 dotenv.config()
 const app = express()
 const port = process.env.PORT || 5000
 
 app.use(
   cors({
-    // origin: "http://localhost:5174",
-    origin: "http://localhost:5173",
+    origin: "http://localhost:5174",
+    // origin: "http://localhost:5173",
     credentials: true
   })
 );
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/v1/user", userRouter)
 app.use("/api/v1/channel", channelRouter)
+app.use("/api/v1/create", contentRoute)
 
 
 connectDb().then(() => {
