@@ -11,8 +11,13 @@ export const userAuth = async (req, res, next) => {
 
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECREAT)
 
-    const user = await User.findById(decode.id).select("-password").populate("channel")
-
+    const user = await User.findById(decode.id).select("-password").populate({
+    path: "channel",
+    populate: {
+      path: "videos",
+      select: "title thumbnail videoUrl createdAt",
+    },
+  })
     if (!user) {
       return res.status(401).json({ success: false, message: "Invalid access token" });
     }

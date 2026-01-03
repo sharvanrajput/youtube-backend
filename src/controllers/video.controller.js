@@ -3,46 +3,79 @@ import { Channel } from "../models/channel.model.js";
 import { Video } from "../models/video.model.js";
 
 
-
 export const createVideo = async (req, res) => {
   try {
     const { channel, title, description, tags } = req.body
 
-    if ([channel, title, description, tags].some(field => !field || field.trim())) {
-      return res.status(400).send({ success: false, message: `channel, title, description and tags are requried` });
+    // ✅ Correct validation
+    if ([channel, title, description].some(field => !field || !field.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Channel, title and description are required",
+      })
     }
 
-    const channelData = await Channel.findById({ channelid })
-
+    // ✅ Correct findById usage
+    const channelData = await Channel.findById(channel)
     if (!channelData) {
-      return res.status(400).send({ success: false, message: `channel not found` });
+      return res.status(404).json({
+        success: false,
+        message: "Channel not found",
+      })
     }
 
-    const uploadvideo = req.files.video ? await uploadOnCloudnary(rew.files.video[0].path) : ""
-    const uploadthumbnail = rew.files.thumbnail ? await uploadOnCloudnary(rew.files.thumbnail[0].path) : ""
+    // ✅ Safe file access
+    let videoUrl = ""
+    let thumbnailUrl = ""
 
-    let parsedTag = []
+    if (req.files?.video?.[0]) {
+      const uploadedVideo = await uploadOnCloudnary(
+        req.files.video[0].path
+      )
+      videoUrl = uploadedVideo
+      
+    }
+
+    if (req.files?.thumbnail?.[0]) {
+      const uploadedThumbnail = await uploadOnCloudnary(
+        req.files.thumbnail[0].path
+      )
+      thumbnailUrl = uploadedThumbnail
+    }
+
+    // ✅ Safe tags parsing
+    let parsedTags = []
     if (tags) {
-      parsedTag = JSON.parse(tage)
+      parsedTags = Array.isArray(tags) ? tags : JSON.parse(tags)
     }
 
-    const newvideo = await Video.create({
+    // ✅ Create video
+    const newVideo = await Video.create({
       channel: channelData._id,
       title,
       description,
-      tags: parsedTag,
-      videoUrl: uploadvideo,
-      thumbnail: uploadthumbnail
+      tags: parsedTags,
+      videoUrl,
+      thumbnail: thumbnailUrl,
     })
 
-    await Channel.findByIdAndUpdate(channelData._id,
-      { $push: { videos: newvideo._id } },
-      {new:true}
+    // ✅ Push video into channel
+    await Channel.findByIdAndUpdate(
+      channelData._id,
+      { $push: { videos: newVideo._id } }
     )
 
-    return res.status(201).send({success:true,message:"Video Uploaded success fully"})
+    return res.status(201).json({
+      success: true,
+      message: "Video uploaded successfully",
+      video: newVideo,
+    })
 
   } catch (error) {
-    return res.status(500).send({ success: false, message: `Internal Server Error: ${error.message}` });
+    console.error(error)
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    })
   }
-};
+}

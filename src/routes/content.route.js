@@ -5,7 +5,7 @@ import { userAuth } from "../middlewares/userAuth.js"
 
 const contentRoute = Router()
 
-contentRoute.post("/upload-create", userAuth, upload.fields([
+contentRoute.post("/upload-video", userAuth, upload.fields([
   { name: "video", maxCount: 1 },
   { name: "thumbnail", maxCount: 1 }
 ]), createVideo)
